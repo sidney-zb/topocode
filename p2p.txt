@@ -1,0 +1,2 @@
+p2p a1: [['Nancy', 'Strasbourg', 'Stuttgart', 'Munich', 'Salzburg', 'Vienna', 'Budapest', 'Timisoara', 'Plovdiv', 'Sofia', 'Edirne', 'Istanbul']] 
+a1 edge: [('Nancy', 'Strasbourg'), ('Strasbourg', 'Stuttgart'), ('Stuttgart', 'Munich'), ('Munich', 'Salzburg'), ('Salzburg', 'Vienna'), ('Vienna', 'Budapest'), ('Budapest', 'Timisoara'), ('Timisoara', 'Plovdiv'), ('Plovdiv', 'Sofia'), ('Sofia', 'Edirne'), ('Edirne', 'Istanbul')]
