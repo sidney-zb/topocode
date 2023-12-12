@@ -3,6 +3,7 @@ import os
 import random
 import numpy as np
 from collections import deque
+from matplotlib import pylab as plt
 
 # 获取当前脚本文件所在目录
 script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -13,7 +14,8 @@ file_path = os.path.join(script_dir, file_name)
 
 # 读取 GML 文件
 G = nx.read_gml(file_path)
-nodes = list(G.nodes())
+# 图的所有节点
+nodes = list(G.nodes())  # 图的所有节点
 # 构造节点属性（count、msgbox）
 node_attributes = {}
 for node in nodes:
@@ -22,6 +24,7 @@ for node in nodes:
         # 统计邻居节点被攻破数量/概率
         node_attributes[node][neighbor] = 0.0
 nx.set_node_attributes(G, node_attributes)
+
 
 # print(len(list(G.edges())))  # 148
 w = []  # 记录随机生成的权重
@@ -94,11 +97,11 @@ def node_protection(G):
 
 
 # 得到被保护的节点
-node_d, edge_d = node_protection(G)
+node_d_direct, edge_d_direct = node_protection(G)
 # 打开文件，如果文件不存在会创建一个新文件，使用 UTF-8 编码
 with open("dingxiang.txt", "w") as file:
     # 使用字符串连接将多个值组成一个字符串
-    file.write("dingxiangd1: {} \nd1 edge: {}\n".format(node_d, edge_d))
+    file.write("dingxiangd1: {} \nd1 edge: {}\n".format(node_d_direct, edge_d_direct))
 
 
 # 防御方随机节点保护策略
@@ -137,10 +140,10 @@ def node_pro_random(G):
     return node_pro, link4
 
 
-node_d, edge_d = node_pro_random(G)
+node_d_random, edge_d_random = node_pro_random(G)
 with open("random.txt", "w") as file:
     # 使用字符串连接将多个值组成一个字符串
-    file.write("randomd2: {} \nd2 edge: {}\n".format(node_d, edge_d))
+    file.write("randomd2: {} \nd2 edge: {}\n".format(node_d_random, edge_d_random))
 
 
 # 攻击者策略：端到端探测
@@ -195,10 +198,10 @@ def attack_p2p(G):
     return result_path, shortest_path_edges
 
 
-node_a, edge_a = attack_p2p(G)
+node_a_p2p, edge_a_p2p = attack_p2p(G)
 with open("p2p.txt", "w") as file:
     # 使用字符串连接将多个值组成一个字符串
-    file.write("p2p a1: {} \na1 edge: {}\n".format(node_a, edge_a))
+    file.write("p2p a1: {} \na1 edge: {}\n".format(node_a_p2p, edge_a_p2p))
 
 
 # 广度优先算法
@@ -253,14 +256,14 @@ def BFS(G, source):
 def attack_traceout(G):
     A_Source = 2
     # 得到节点集合
-    result2 = BFS(G, A_Source)
-    return result2
+    result_2 = BFS(G, A_Source)
+    return result_2
 
 
-node_a, edge_a = attack_traceout(G)
+node_a_trace, edge_a_trace = attack_traceout(G)
 with open("trace.txt", "w") as file:
     # 使用字符串连接将多个值组成一个字符串
-    file.write("trace a2: {} \na2 edge: {}\n".format(node_a, edge_a))
+    file.write("trace a2: {} \na2 edge: {}\n".format(node_a_trace, edge_a_trace))
 
 # {node:{neibor1:a,neibor2:b,neibor3:c}}
 # 获取节点属性nx.get_node_attributes(G, "neibor")["node"]
@@ -320,7 +323,13 @@ def step(G, node_a, node_d):
 
 
 # 计算双方收益（零和）
-def payoff_calculation(G, matrix):
+def payoff_calculation(G, node_a, edge_a, node_d, edge_d, matrix):
+    # 初始化msg
+    nodes = list(G.nodes())
+    for n1 in nodes:
+        G.nodes()[n1]["count"] = 0
+        for neighbor in G[n1]:
+            G.nodes()[n1][neighbor] = 0
     # 计算攻击者收益
     n_payoff_t = 0
     n_payoff_f = 0
@@ -375,9 +384,35 @@ def payoff_calculation(G, matrix):
     return n_payoff_t - n_payoff_f + 0.1 * (e_payoff_t - e_payoff_f) + k * lbp
 
 
-result = payoff_calculation(G, adjacency_matrix)
-print("攻击者收益为：", round(result, 4))
+# 定向vs 端到端收益
+result_1 = payoff_calculation(
+    G, node_a_p2p, edge_a_p2p, node_d_direct, edge_d_direct, adjacency_matrix
+)
+print("定向vs 端到端_攻击者收益为：", round(result_1, 4))
 
+# 定向vs trace收益
+result_2 = payoff_calculation(
+    G, node_a_trace, edge_a_trace, node_d_direct, edge_d_direct, adjacency_matrix
+)
+print("定向vs trace_攻击者收益为：", round(result_2, 4))
+
+# 随机vs 端到端收益
+result_3 = payoff_calculation(
+    G, node_a_p2p, edge_a_p2p, node_d_random, edge_d_random, adjacency_matrix
+)
+print("随机vs 端到端_攻击者收益为：", round(result_3, 4))
+
+# 随机vs trace收益
+result_4 = payoff_calculation(
+    G, node_a_trace, edge_a_trace, node_d_random, edge_d_random, adjacency_matrix
+)
+print("随机vs trace_攻击者收益为：", round(result_4, 4))
+payoff_matrix = np.zeros((2, 2))
+payoff_matrix[0, 0] = result_2
+payoff_matrix[0, 1] = result_4
+payoff_matrix[1, 0] = result_1
+payoff_matrix[1, 1] = result_3
+print(payoff_matrix)
 """
 #打印节点被探测到概率值
 for i in nodes:

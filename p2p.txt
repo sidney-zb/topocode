@@ -1,2 +1,2 @@
-p2p a1: [['Nancy', 'Strasbourg', 'Stuttgart', 'Munich', 'Salzburg', 'Vienna', 'Budapest', 'Timisoara', 'Plovdiv', 'Sofia', 'Edirne', 'Istanbul']] 
-a1 edge: [('Nancy', 'Strasbourg'), ('Strasbourg', 'Stuttgart'), ('Stuttgart', 'Munich'), ('Munich', 'Salzburg'), ('Salzburg', 'Vienna'), ('Vienna', 'Budapest'), ('Budapest', 'Timisoara'), ('Timisoara', 'Plovdiv'), ('Plovdiv', 'Sofia'), ('Sofia', 'Edirne'), ('Edirne', 'Istanbul')]
+p2p a1: [['Istanbul', 'Edirne', 'Ruse', 'Bucharest', 'Timisoara', 'Budapest', 'Vienna', 'Brno', 'Krakow', 'Warsaw', 'Poznan', 'Berlin', 'None3', 'Copenhagen', 'Stockholm', 'Moscow']] 
+a1 edge: [('Istanbul', 'Edirne'), ('Edirne', 'Ruse'), ('Ruse', 'Bucharest'), ('Bucharest', 'Timisoara'), ('Timisoara', 'Budapest'), ('Budapest', 'Vienna'), ('Vienna', 'Brno'), ('Brno', 'Krakow'), ('Krakow', 'Warsaw'), ('Warsaw', 'Poznan'), ('Poznan', 'Berlin'), ('Berlin', 'None3'), ('None3', 'Copenhagen'), ('Copenhagen', 'Stockholm'), ('Stockholm', 'Moscow')]
