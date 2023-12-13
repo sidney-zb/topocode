@@ -1,5 +1,4 @@
-import random
+import numpy as np
 
-for i in range(20):
-    a = random.randint(1, 5)
-    print(a)
+a = np.linspace(1, 10, 10)
+print(int(a[1]))
