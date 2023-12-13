@@ -96,14 +96,6 @@ def node_protection(G):
     return node_pro, link1
 
 
-# 得到被保护的节点
-node_d_direct, edge_d_direct = node_protection(G)
-# 打开文件，如果文件不存在会创建一个新文件，使用 UTF-8 编码
-with open("dingxiang.txt", "w") as file:
-    # 使用字符串连接将多个值组成一个字符串
-    file.write("dingxiangd1: {} \nd1 edge: {}\n".format(node_d_direct, edge_d_direct))
-
-
 # 防御方随机节点保护策略
 def node_pro_random(G):
     # 可用防御资源总数
@@ -138,12 +130,6 @@ def node_pro_random(G):
             link4.append((neighbor, i))
 
     return node_pro, link4
-
-
-node_d_random, edge_d_random = node_pro_random(G)
-with open("random.txt", "w") as file:
-    # 使用字符串连接将多个值组成一个字符串
-    file.write("randomd2: {} \nd2 edge: {}\n".format(node_d_random, edge_d_random))
 
 
 # 攻击者策略：端到端探测
@@ -196,12 +182,6 @@ def attack_p2p(G):
             else:
                 total_bc = 0
     return result_path, shortest_path_edges
-
-
-node_a_p2p, edge_a_p2p = attack_p2p(G)
-with open("p2p.txt", "w") as file:
-    # 使用字符串连接将多个值组成一个字符串
-    file.write("p2p a1: {} \na1 edge: {}\n".format(node_a_p2p, edge_a_p2p))
 
 
 # 广度优先算法
@@ -259,11 +239,6 @@ def attack_traceout(G):
     result_2 = BFS(G, A_Source)
     return result_2
 
-
-node_a_trace, edge_a_trace = attack_traceout(G)
-with open("trace.txt", "w") as file:
-    # 使用字符串连接将多个值组成一个字符串
-    file.write("trace a2: {} \na2 edge: {}\n".format(node_a_trace, edge_a_trace))
 
 # {node:{neibor1:a,neibor2:b,neibor3:c}}
 # 获取节点属性nx.get_node_attributes(G, "neibor")["node"]
@@ -383,6 +358,33 @@ def payoff_calculation(G, node_a, edge_a, node_d, edge_d, matrix):
     k = 0.3  # lbp调参
     m = 0.1  # 权重比例调参
     return n_payoff_t - n_payoff_f + m * (e_payoff_t - e_payoff_f) + k * lbp
+
+
+# 策略选择
+# 定点保护策略
+node_d_direct, edge_d_direct = node_protection(G)
+# 打开文件，如果文件不存在会创建一个新文件，使用 UTF-8 编码
+with open("dingxiang.txt", "w") as file:
+    # 使用字符串连接将多个值组成一个字符串
+    file.write("dingxiangd1: {} \nd1 edge: {}\n".format(node_d_direct, edge_d_direct))
+
+# 随机保护策略
+node_d_random, edge_d_random = node_pro_random(G)
+with open("random.txt", "w") as file:
+    # 使用字符串连接将多个值组成一个字符串
+    file.write("randomd2: {} \nd2 edge: {}\n".format(node_d_random, edge_d_random))
+
+# 端到端策略
+node_a_p2p, edge_a_p2p = attack_p2p(G)
+with open("p2p.txt", "w") as file:
+    # 使用字符串连接将多个值组成一个字符串
+    file.write("p2p a1: {} \na1 edge: {}\n".format(node_a_p2p, edge_a_p2p))
+
+# trace策略
+node_a_trace, edge_a_trace = attack_traceout(G)
+with open("trace.txt", "w") as file:
+    # 使用字符串连接将多个值组成一个字符串
+    file.write("trace a2: {} \na2 edge: {}\n".format(node_a_trace, edge_a_trace))
 
 
 # 定向vs 端到端收益
