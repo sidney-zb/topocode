@@ -1,0 +1,2 @@
+p2p a1: [['Istanbul', 'Edirne', 'Thessalonika', 'Bari', 'Naples', 'None1', 'Tunis'], ['Malta', 'None1', 'Naples', 'Rome', 'Pisa', 'Genoa', 'Nice', 'Marseille', 'South Africa']] 
+a1 edge: [('Istanbul', 'Edirne'), ('Edirne', 'Thessalonika'), ('Thessalonika', 'Bari'), ('Bari', 'Naples'), ('Naples', 'None1'), ('None1', 'Tunis'), ('Malta', 'None1'), ('None1', 'Naples'), ('Naples', 'Rome'), ('Rome', 'Pisa'), ('Pisa', 'Genoa'), ('Genoa', 'Nice'), ('Nice', 'Marseille'), ('Marseille', 'South Africa')]

@@ -236,8 +236,8 @@ def BFS(G, source):
 def attack_traceout(G):
     A_Source = 2
     # 得到节点集合
-    result_2 = BFS(G, A_Source)
-    return result_2
+    U1 = BFS(G, A_Source)
+    return U1
 
 
 # {node:{neibor1:a,neibor2:b,neibor3:c}}
@@ -356,123 +356,111 @@ def payoff_calculation(G, node_a, edge_a, node_d, edge_d, matrix):
             p = round(p, 3)
             lbp = p + lbp
     k = 0.3  # lbp调参
-    m = 0  # 权重比例调参
+    m = 0.05  # 权重比例调参
     return -(n_payoff_t - n_payoff_f + m * (e_payoff_t - e_payoff_f) + k * lbp)
 
 
-# 构造实验
+U1 = U2 = U3 = U4 = 0
+node_d_direct = []
+edge_d_direct = []
+node_d_random = []
+edge_d_random = []
+node_a_p2p = []
+edge_a_p2p = []
+node_a_trace = []
+edge_a_trace = []
 
-times = 500
 
-x_values = np.linspace(1, times, times)
-trace_pro = []
-trace_ran = []
-p2p_pro = []
-p2p_ran = []
+# 均衡求解
+def compute_equilibrium(payoff_matrix):
+    u1 = payoff_matrix[0, 0]
+    u2 = payoff_matrix[0, 1]
+    u3 = payoff_matrix[1, 0]
+    u4 = payoff_matrix[1, 1]
+    q_equilibrium = (u4 - u3) / (u1 - u3)
+    p_equilibrium = (u2 - u4) / (u2 - u1)
+    return q_equilibrium, p_equilibrium
 
-for t in range(times):
-    # 定向防御策略
+
+# 期望收益计算
+def compute_EUd(q, p, payoff_matrix):
+    eud = (
+        p * q * payoff_matrix[0, 0]
+        + (1 - p) * q * payoff_matrix[0, 1]
+        + (1 - q) * p * payoff_matrix[1, 0]
+        + (1 - p) * (1 - q) * payoff_matrix[1, 1]
+    )
+    return eud
+
+
+for i in range(1000):
+    # 策略选择
+    # 定点保护策略
     node_d_direct, edge_d_direct = node_protection(G)
-    # 随机防御策略
+    # 打开文件，如果文件不存在会创建一个新文件，使用 UTF-8 编码
+    with open("dingxiang-ex3.txt", "w") as file:
+        # 使用字符串连接将多个值组成一个字符串
+        file.write(
+            "dingxiangd1: {} \nd1 edge: {}\n".format(node_d_direct, edge_d_direct)
+        )
+
+    # 随机保护策略
     node_d_random, edge_d_random = node_pro_random(G)
-    # attacker路由追踪
-    node_a_trace, edge_a_trace = attack_traceout(G)
-    # attacker端到端策略
+    with open("random-ex3.txt", "w") as file:
+        # 使用字符串连接将多个值组成一个字符串
+        file.write("randomd2: {} \nd2 edge: {}\n".format(node_d_random, edge_d_random))
+
+    # 端到端策略
     node_a_p2p, edge_a_p2p = attack_p2p(G)
+    with open("p2p-ex3.txt", "w") as file:
+        # 使用字符串连接将多个值组成一个字符串
+        file.write("p2p a1: {} \na1 edge: {}\n".format(node_a_p2p, edge_a_p2p))
+
+    # trace策略
+    node_a_trace, edge_a_trace = attack_traceout(G)
+    with open("trace-ex3.txt", "w") as file:
+        # 使用字符串连接将多个值组成一个字符串
+        file.write("trace a2: {} \na2 edge: {}\n".format(node_a_trace, edge_a_trace))
     # 定向vs 端到端收益
-    result_1 = payoff_calculation(
+    U3 = payoff_calculation(
         G, node_a_p2p, edge_a_p2p, node_d_direct, edge_d_direct, adjacency_matrix
     )
-    print("定向vs 端到端_防御者收益为：", round(result_1, 4))
-    p2p_pro.append(result_1)
+    # print("定向vs 端到端_防御者收益为：", round(U3, 4))
+
     # 定向vs trace收益
-    result_2 = payoff_calculation(
+    U1 = payoff_calculation(
         G, node_a_trace, edge_a_trace, node_d_direct, edge_d_direct, adjacency_matrix
     )
-    print("定向vs trace_防御者收益为：", round(result_2, 4))
-    trace_pro.append(result_2)
+    # print("定向vs trace_防御者收益为：", round(U1, 4))
+
     # 随机vs 端到端收益
-    result_3 = payoff_calculation(
+    U4 = payoff_calculation(
         G, node_a_p2p, edge_a_p2p, node_d_random, edge_d_random, adjacency_matrix
     )
-    print("随机vs 端到端_防御者收益为：", round(result_3, 4))
-    p2p_ran.append(result_3)
+    # print("随机vs 端到端_防御者收益为：", round(U4, 4))
+
     # 随机vs trace收益
-    result_4 = payoff_calculation(
+    U2 = payoff_calculation(
         G, node_a_trace, edge_a_trace, node_d_random, edge_d_random, adjacency_matrix
     )
-    print("随机vs trace_防御者收益为：", round(result_4, 4))
-    trace_ran.append(result_4)
+    # print("随机vs trace_防御者收益为：", round(U2, 4))
 
-# 计算期望收益
-sum00 = sum01 = sum10 = sum11 = 0
-for i in trace_pro:
-    sum00 = i + sum00
+    if (U1 > U4 > U3 and U1 > U4 > U2) or (U3 > U4 > U1 and U2 > U4 > U1):
+        # 构造收益矩阵
+        payoff_matrix = np.zeros((2, 2))
+        payoff_matrix[0, 0] = round(U1, 4)
+        payoff_matrix[0, 1] = round(U2, 4)
+        payoff_matrix[1, 0] = round(U3, 4)
+        payoff_matrix[1, 1] = round(U4, 4)
+        print(payoff_matrix)
+        q_e, p_e = compute_equilibrium(payoff_matrix)
+        q_e = round(q_e, 4)
+        p_e = round(p_e, 4)
+        print(f"定向概率:{q_e}，攻击者端到端概率：{p_e}")
 
-for i in trace_ran:
-    sum01 = i + sum01
-
-for i in p2p_pro:
-    sum10 = i + sum10
-
-for i in p2p_ran:
-    sum11 = i + sum11
-
-EUD_matrix = np.zeros((2, 2))
-EUD_matrix[0, 0] = round(sum00 / times, 4)
-EUD_matrix[0, 1] = round(sum01 / times, 4)
-EUD_matrix[1, 0] = round(sum10 / times, 4)
-EUD_matrix[1, 1] = round(sum11 / times, 4)
-
-print(f"防御者期望收益矩阵(wei=1)为：\n{EUD_matrix}")
-
-# endtoend vs defend
-plt.scatter(
-    x_values,
-    p2p_pro,
-    label="dingxiang",
-    color="b",
-    marker="*",
-)
-
-plt.scatter(
-    x_values,
-    p2p_ran,
-    label="random",
-    color="g",
-    marker="o",
-)
-plt.title("end-to-end vs. defender weight=0")
-plt.xlabel("n")
-plt.ylabel("Ud")
-plt.legend()
-plt.grid(False)
-plt.savefig(f"end-to-end vs. defender{times}.png")
-plt.show()
-
-# trace vs defend
-plt.scatter(
-    x_values,
-    trace_pro,
-    label="dingxiang",
-    color="b",
-    marker="*",
-)
-
-plt.scatter(
-    x_values,
-    trace_ran,
-    label="random",
-    color="g",
-    marker="o",
-)
-plt.title("trace vs. defender weight=0")
-plt.xlabel("n")
-plt.ylabel("Ud")
-plt.legend()
-plt.grid(False)
-plt.savefig(f"trace vs. defender{times}.png")
-plt.show()
+        EUd = compute_EUd(q_e, p_e, payoff_matrix)
+        EUd = round(EUd, 2)
+        print(f"防御者期望收益为：{EUd}，攻击者期望收益为：{-EUd}")
 
 
 """

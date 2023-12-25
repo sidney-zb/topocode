@@ -362,7 +362,7 @@ def payoff_calculation(G, node_a, edge_a, node_d, edge_d, matrix):
 
 # 构造实验
 
-times = 30
+times = 500
 
 x_values = np.linspace(1, times, times)
 trace_pro = []
@@ -405,25 +405,47 @@ for t in range(times):
     )
     print("随机vs trace_防御者收益为：", round(result_4, 4))
     trace_ran.append(result_4)
+
+# 计算期望收益
+sum00 = sum01 = sum10 = sum11 = 0
+for i in trace_pro:
+    sum00 = i + sum00
+
+for i in trace_ran:
+    sum01 = i + sum01
+
+for i in p2p_pro:
+    sum10 = i + sum10
+
+for i in p2p_ran:
+    sum11 = i + sum11
+
+EUD_matrix = np.zeros((2, 2))
+EUD_matrix[0, 0] = round(sum00 / times, 4)
+EUD_matrix[0, 1] = round(sum01 / times, 4)
+EUD_matrix[1, 0] = round(sum10 / times, 4)
+EUD_matrix[1, 1] = round(sum11 / times, 4)
+
+print(f"防御者期望收益矩阵(wei=1)为：\n{EUD_matrix}")
+
+
 # endtoend vs defend
-plt.plot(
+plt.scatter(
     x_values,
     p2p_pro,
     label="dingxiang",
     color="b",
-    linestyle="-",
     marker="*",
 )
 
-plt.plot(
+plt.scatter(
     x_values,
     p2p_ran,
     label="random",
     color="g",
-    linestyle="-.",
     marker="o",
 )
-plt.title("end-to-end vs. defender")
+plt.title("end-to-end vs. defender weight=1")
 plt.xlabel("n")
 plt.ylabel("Ud")
 plt.legend()
@@ -432,7 +454,7 @@ plt.savefig(f"end-to-end vs. defender{times}(w=0.1).png")
 plt.show()
 
 # trace vs defend
-plt.plot(
+plt.scatter(
     x_values,
     trace_pro,
     label="dingxiang",
@@ -441,7 +463,7 @@ plt.plot(
     marker="*",
 )
 
-plt.plot(
+plt.scatter(
     x_values,
     trace_ran,
     label="random",
